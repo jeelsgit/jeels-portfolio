@@ -1,70 +1,55 @@
 // components/Header.js
 import React, { useState, useEffect, useRef, forwardRef } from 'react';
-import { Box, Flex, Heading, Spacer, useColorModeValue, Icon } from '@chakra-ui/react';
-import { MarkGithubIcon } from '@primer/octicons-react';
+import { Box, Flex, Heading, Spacer, useColorModeValue, Icon, Button, Link as ChakraLink } from '@chakra-ui/react';
+// Make sure you have @primer/octicons-react installed or use react-icons
+import { MarkGithubIcon, DownloadIcon } from '@primer/octicons-react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 
 const Header = forwardRef((props, ref) => {
-  const bgColor = useColorModeValue('githubLight.bg', 'githubDark.bg');
+  const bgColor = useColorModeValue('githubLight.bg', 'githubDark.bg'); // Use main bg
   const borderColor = useColorModeValue('githubLight.border', 'githubDark.border');
   const textColor = useColorModeValue('githubLight.text', 'githubDark.text');
   const shadow = useColorModeValue('sm', 'none');
 
   const [isVisible, setIsVisible] = useState(true);
-  const [height, setHeight] = useState(60); // Initial estimate
-  const lastScrollY = useRef(0); // Store last scroll position
+  const [height, setHeight] = useState(60);
+  const lastScrollY = useRef(0);
 
-  // Effect to measure height using the forwarded ref
+  // Effect to measure height
   useEffect(() => {
     if (ref?.current) {
-      const measureHeight = () => {
-        setHeight(ref.current.offsetHeight);
-      };
-      // Measure initially
-      measureHeight();
-      // Optional: Re-measure on resize
-      window.addEventListener('resize', measureHeight);
-      return () => window.removeEventListener('resize', measureHeight);
+      const observer = new ResizeObserver(entries => {
+           for (let entry of entries) { setHeight(entry.contentRect.height); }
+      });
+      observer.observe(ref.current);
+      setHeight(ref.current.offsetHeight); // Initial measure
+      return () => observer.disconnect();
     }
   }, [ref]);
 
   // Effect for scroll listener
   useEffect(() => {
-    // Only run if window is defined (prevents server-side errors)
-    if (typeof window === 'undefined') {
-        return;
-    }
-
+    if (typeof window === 'undefined') return;
     const handleScroll = () => {
         const currentScrollY = window.scrollY;
         const previousScrollY = lastScrollY.current;
-        const delta = 10; // Minimum scroll change to trigger hide/show
-        const effectiveHeight = height || 60; // Use state height or fallback
+        const delta = 10;
+        const effectiveHeight = height || 60;
 
-        // Scrolling down, past the header height significantly
         if (currentScrollY > previousScrollY + delta && currentScrollY > effectiveHeight + 50) {
             setIsVisible(false);
-        }
-        // Scrolling up or very near the top
-        else if (currentScrollY < previousScrollY - delta || currentScrollY < 10) {
+        } else if (currentScrollY < previousScrollY - delta || currentScrollY < 10) {
             setIsVisible(true);
         }
-
-        // Update last scroll position (must be done AFTER comparison)
-        lastScrollY.current = Math.max(0, currentScrollY); // Ensure it's not negative
+        lastScrollY.current = Math.max(0, currentScrollY);
     };
-
-    // Add listener
     window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Cleanup listener on unmount
     return () => window.removeEventListener('scroll', handleScroll);
-
-  }, [height]); // Dependency on height ensures correct threshold
+  }, [height]);
 
   return (
     <Box
-      ref={ref} // Attach forwarded ref
+      ref={ref}
       as="header"
       position="fixed"
       top="0"
@@ -72,11 +57,10 @@ const Header = forwardRef((props, ref) => {
       bg={bgColor}
       borderBottomWidth="1px"
       borderColor={borderColor}
-      zIndex="sticky" // High z-index
+      zIndex="sticky"
       px={{ base: 4, md: 6 }}
       py={3}
       transition="transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out"
-      // Use visibility state and measured height for transform
       transform={isVisible ? 'translateY(0)' : `translateY(-${height}px)`}
       boxShadow={shadow}
     >
@@ -88,8 +72,22 @@ const Header = forwardRef((props, ref) => {
            </Heading>
         </Flex>
         <Spacer />
-        <Flex align="center">
-           <ColorModeSwitcher />
+        <Flex align="center" gap={2}> {/* Added gap */}
+            {/* Download Resume Button */}
+            <Button
+                as={ChakraLink}
+                // --- IMPORTANT: Update this filename ---
+                href="/Jeel_Tandel_Resume.pdf"
+                // ---------------------------------------
+                download
+                variant="outline" // Use secondary style
+                size="sm"
+                leftIcon={<Icon as={DownloadIcon} />}
+                aria-label="Download Resume"
+            >
+                Resume
+            </Button>
+            <ColorModeSwitcher />
         </Flex>
       </Flex>
     </Box>

@@ -1,21 +1,21 @@
 // pages/index.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-// Import Divider from Chakra
 import { Box, Flex, useColorModeValue, Divider } from '@chakra-ui/react';
 import Head from 'next/head';
+import { motion } from 'framer-motion'; // Import motion
 
-// --- VERIFY IMPORTS ---
+// --- Section Component Imports ---
 import HomeSection from '../components/HomeSection';
 import AboutSection from '../components/AboutSection';
 import ProjectsSection from '../components/ProjectsSection';
 import SkillsSection from '../components/SkillsSection';
 import ExperienceSection from '../components/ExperienceSection';
 import ContactSection from '../components/ContactSection';
+// --- Layout Component Imports ---
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
-// ----------------------
 
-
+// --- Sections Configuration ---
 const sections = [
   { id: 'home', name: 'Home', component: HomeSection },
   { id: 'about', name: 'About', component: AboutSection },
@@ -25,6 +25,7 @@ const sections = [
   { id: 'contact', name: 'Contact', component: ContactSection },
 ];
 
+// --- Main Page Component ---
 export default function Home() {
   const [activeSection, setActiveSection] = useState(sections[0].id);
   const sectionRefs = useRef(
@@ -35,9 +36,9 @@ export default function Home() {
   );
   const mainContentRef = useRef(null);
   const headerRef = useRef(null);
-  const [headerHeight, setHeaderHeight] = useState(60); // Default height
+  const [headerHeight, setHeaderHeight] = useState(60);
 
-  // Effect to get header height
+  // Effect: Get Header Height
   useEffect(() => {
     const timer = setTimeout(() => {
       if (headerRef.current) {
@@ -47,25 +48,17 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-
-  // Intersection Observer Callback - Focus on entry closest to the ideal position
+  // Callback: Handle Intersection Changes for Scrollspy
   const handleIntersection = useCallback((entries) => {
       let bestCandidateId = null;
-      // Define the ideal target position (e.g., 10px below the header)
-      // We calculate based on rootBounds later if needed, but aiming for near top.
-      const targetOffset = 10; // Pixels below the top edge of the scroll container
+      const targetOffset = 10; // Ideal position below header (pixels)
       let smallestDistance = Infinity;
 
       entries.forEach(entry => {
           const { target, isIntersecting, boundingClientRect, rootBounds } = entry;
-
           if (isIntersecting && rootBounds) {
-              // Position of the element's top relative to the scroll container's top
               const topRelativeToRoot = boundingClientRect.top - rootBounds.top;
-              // Calculate distance from the ideal target position
               const distanceFromTarget = Math.abs(topRelativeToRoot - targetOffset);
-
-              // If this entry is closer to the target than the current best, update
               if (distanceFromTarget < smallestDistance) {
                   smallestDistance = distanceFromTarget;
                   bestCandidateId = target.id;
@@ -73,41 +66,28 @@ export default function Home() {
           }
       });
 
-      // Explicitly handle scrolling to the absolute top
       if (mainContentRef.current && mainContentRef.current.scrollTop < 50) {
            if (activeSection !== 'home') setActiveSection('home');
-      }
-      // Update if a best candidate was found and it's different
-      else if (bestCandidateId && bestCandidateId !== activeSection) {
+      } else if (bestCandidateId && bestCandidateId !== activeSection) {
           setActiveSection(bestCandidateId);
       }
   }, [activeSection]);
 
-
-  // Setup Intersection Observer
+  // Effect: Setup Intersection Observer
   useEffect(() => {
     const scrollContainer = mainContentRef.current;
     if (!scrollContainer || headerHeight <= 0) return;
 
-    // rootMargin: Define the observation area more precisely.
-    // top: -10px (start observing slightly above the container top)
-    // bottom: - (container height - TargetAreaHeight) px. E.g., watch top 100px.
-    // Use percentage for flexibility, e.g., watch top 20% -> bottom: -80%
     const observerOptions = {
         root: scrollContainer,
-        // Observe a zone starting slightly above the top edge to catch fast scrolls,
-        // and extending down (e.g., -70% means top 30% is the active zone).
-        rootMargin: `-10px 0px -70% 0px`,
-        threshold: 0, // Trigger immediately
+        rootMargin: `-10px 0px -70% 0px`, // Adjust bottom % to tune active zone
+        threshold: 0,
     }
-
     const observer = new IntersectionObserver(handleIntersection, observerOptions);
 
     sections.forEach((section) => {
       const sectionElement = sectionRefs.current[section.id]?.current;
-      if (sectionElement) {
-           observer.observe(sectionElement);
-      }
+      if (sectionElement) observer.observe(sectionElement);
     });
 
     return () => {
@@ -121,9 +101,19 @@ export default function Home() {
     };
   }, [handleIntersection, headerHeight]);
 
-
+  // --- Render Logic ---
   const mainBgColor = useColorModeValue('githubLight.bg', 'githubDark.bg');
   const borderColor = useColorModeValue('githubLight.border', 'githubDark.border');
+
+  // Animation variants for sections
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 25 }, // Slightly larger y offset
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.6, ease: "easeOut" } // Smoother ease
+    }
+  };
 
   return (
     <>
@@ -136,7 +126,7 @@ export default function Home() {
 
       <Flex
           w="full"
-          pt={`${headerHeight}px`}
+          pt={headerHeight > 0 ? `${headerHeight}px` : '60px'}
           height="100vh"
           overflow="hidden"
       >
@@ -153,9 +143,8 @@ export default function Home() {
           overflowY="auto"
           height="100%"
           sx={{ scrollBehavior: 'smooth' }}
-          // Consistent horizontal padding
-          px={{ base: 5, md: 8, lg: 10 }}
-          // Remove py here, handle spacing with section padding/margins
+          px={{ base: 5, md: 8, lg: 10 }} // Consistent horizontal padding
+          // No py here, handled by section wrappers/dividers
         >
           {sections.map(({ id, component: Component }, index) => {
             if (!Component) {
@@ -163,29 +152,39 @@ export default function Home() {
                 return <Box key={id} color="red.500" p={5}>Error loading section: '{id}'.</Box>;
             }
             return (
-              // Use Fragment to avoid unnecessary outer Box for each section itself
               <React.Fragment key={id}>
-                 {/* Add Divider BEFORE sections (except the first one) */}
+                 {/* Divider Between Sections */}
                  {index > 0 && (
                     <Divider
-                        my={{ base: 12, md: 16 }} // Vertical margin for spacing
+                        my={{ base: 16, md: 20 }} // Increased vertical margin for more space
                         borderColor={borderColor}
-                        // Constrain divider width to match content
-                        maxWidth="container.lg" // Match section content width
-                        mx="auto" // Center the divider
+                        maxWidth="container.lg" // Match content width
+                        mx="auto"
                     />
                  )}
-                 {/* Section Content Box */}
-                 <Box
-                     id={id} // ID for anchor linking
-                     ref={sectionRefs.current[id]} // Ref for IntersectionObserver target
-                     // Add padding TOP and BOTTOM for spacing around content
-                     pt={{ base: 8, md: 12 }} // Padding top for space after divider/previous section
-                     pb={{ base: 8, md: 12 }} // Padding bottom for space before next divider
+                 {/* Section Wrapper with Animation */}
+                 <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.15 }} // Trigger when 15% is visible
+                    variants={sectionVariants}
                  >
-                    {/* Render the actual section component */}
-                    <Component />
-                 </Box>
+                     <Box
+                         id={id}
+                         ref={sectionRefs.current[id]}
+                         // IMPORTANT: Ensure Home section has enough vertical space
+                         // Apply minHeight specifically to home, or ensure content gives it height
+                         minHeight={id === 'home' ? `calc(90vh - ${headerHeight}px)` : undefined}
+                         display={id === 'home' ? 'flex' : undefined} // Use flex for vertical centering on home
+                         alignItems={id === 'home' ? 'center' : undefined} // Center home content vertically
+                         // Padding applied consistently
+                         pt={index === 0 ? { base: 8, md: 12 } : 0} // Pad top of first section
+                         pb={{ base: 8, md: 12 }} // Pad bottom of all sections (before divider)
+                     >
+                        {/* Render component */}
+                        <Component />
+                     </Box>
+                 </motion.div>
               </React.Fragment>
             );
            })}

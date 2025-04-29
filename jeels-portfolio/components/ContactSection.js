@@ -17,7 +17,7 @@ const ContactSection = ({ id, sectionRef }) => {
 
   return (
     <Box id={id} ref={sectionRef} py={20}>
-      <VStack spacing={8} align="center" maxWidth="container.md" mx="auto" textAlign="center">
+      <VStack spacing={8} align="center" maxWidth="container.lg" mx="auto" textAlign="center">
         <Heading as="h2" size="xl">Get In Touch</Heading>
         <Text fontSize="lg" color={useColorModeValue('gray.600', 'gray.400')}>
           I'm currently looking for new opportunities. Whether you have a question or just want to say hi, feel free to reach out!

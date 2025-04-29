@@ -1,29 +1,39 @@
 // components/ExperienceSection.js
-import { Box, Heading, VStack, Text, List, ListItem, ListIcon, useColorModeValue } from '@chakra-ui/react';
-import { CheckCircleIcon } from '@chakra-ui/icons'; // Use Chakra's icon
+import { Box, Heading, VStack, Text, List, ListItem, ListIcon, useColorModeValue, Icon } from '@chakra-ui/react';
+import { CheckCircleIcon } from '@chakra-ui/icons';
+import { FaStar } from 'react-icons/fa'; // Using react-icons for achievement star
 
+// --- Data Structure including Responsibilities and Achievements ---
 const experienceData = [
   {
     title: 'Full-Stack Developer',
     company: 'Appy.Yo',
-    location: 'Vancouver, Canada', // Added location
+    location: 'Vancouver, Canada',
     dates: 'Sept 2024 – Dec 2024',
-    description: [
-      'Built a gig worker platform using Java, Python, and PostgreSQL, resolving cross-platform compatibility issues across Windows and Linux servers.',
-      'Optimized database performance by 20% through query tuning, indexing strategies, and cache implementation.',
-      'Implemented secure authentication systems using OAuth 2.0 and documented troubleshooting processes.',
-      'Collaborated in an Agile team using bi-weekly sprints to diagnose errors and deliver scalable solutions.',
-      'Conducted code reviews and mentored junior developers on best practices for clean code architecture.',
+    responsibilities: [
+      'Developed a gig worker platform using Java, Python, and PostgreSQL.',
+      'Resolved cross-platform compatibility issues across Windows and Linux servers.',
+      'Implemented secure authentication systems using OAuth 2.0.',
+      'Collaborated within an Agile team, participating in bi-weekly sprints.',
+      'Conducted code reviews and documented troubleshooting processes.',
+      'Mentored junior developers on clean code architecture best practices.',
+    ],
+    achievements: [
+      'Optimized database performance by 20% through query tuning, indexing strategies, and caching implementations.',
+      // Add more specific, quantifiable achievements if possible
     ],
   },
-  // Add other experiences if available
+  // Add other job experiences here following the same structure
 ];
+// --- End Data ---
+
 
 const ExperienceSection = () => {
   const itemBorderColor = useColorModeValue('githubLight.border', 'githubDark.border');
   const primaryTextColor = useColorModeValue('githubLight.text', 'githubDark.text');
   const secondaryTextColor = useColorModeValue('githubLight.textSecondary', 'githubDark.textSecondary');
   const successColor = useColorModeValue('githubLight.success', 'githubDark.success');
+  const achievementColor = useColorModeValue('yellow.500', 'yellow.300');
 
   return (
     <VStack
@@ -43,14 +53,37 @@ const ExperienceSection = () => {
               <Text fontWeight="normal" color={secondaryTextColor} fontSize="sm" mb={3}>
                 {job.location} | {job.dates}
               </Text>
-              <List spacing={2} mt={1} pl={1}>
-                {job.description.map((point, pIndex) => (
-                  <ListItem key={pIndex} fontSize="sm" color={primaryTextColor} display="flex" alignItems="start">
-                    <ListIcon as={CheckCircleIcon} color={successColor} mt="4px" mr={2} flexShrink={0}/>
-                    {point}
-                  </ListItem>
-                ))}
+
+
+              {/* Render Responsibilities */}
+              <List spacing={2} mt={3} pl={1}>
+                  {/* Render Responsibilities */}
+                  {job.responsibilities && job.responsibilities.length > 0 && (
+                     <>
+                         {/* Optional: You could add a heading here if desired */}
+                         {job.responsibilities.map((point, pIndex) => (
+                          <ListItem key={`resp-${pIndex}`} fontSize="sm" color={primaryTextColor} display="flex" alignItems="start">
+                            <ListIcon as={CheckCircleIcon} color={successColor} mt="4px" mr={2} flexShrink={0}/>
+                            {point}
+                          </ListItem>
+                         ))}
+                     </>
+                  )}
+
+                  {/* Render Achievements (can be in the same List or a separate one) */}
+                   {job.achievements && job.achievements.length > 0 && (
+                     <>
+                         <Text fontWeight="medium" fontSize="sm" color={secondaryTextColor} mb={1} mt={4}>Key Achievements:</Text>
+                         {job.achievements.map((point, pIndex) => (
+                          <ListItem key={`ach-${pIndex}`} fontSize="sm" color={primaryTextColor} display="flex" alignItems="start">
+                            <ListIcon as={FaStar} color={achievementColor} mt="4px" mr={2} flexShrink={0}/>
+                            {point}
+                          </ListItem>
+                         ))}
+                     </>
+                  )}
               </List>
+
             </Box>
           ))}
         </VStack>

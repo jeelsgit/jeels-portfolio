@@ -1,8 +1,9 @@
 // components/Sidebar.js
 import React from 'react';
-import { Box, VStack, Link, Heading, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, VStack, Link, useColorModeValue } from '@chakra-ui/react';
 import NextLink from 'next/link';
 
+// Accept mainContentRef and headerHeight as props
 const Sidebar = ({ sections, activeSection, mainContentRef, headerHeight }) => {
   const bgColor = useColorModeValue('githubLight.sidebarBg', 'githubDark.sidebarBg');
   const borderColor = useColorModeValue('githubLight.border', 'githubDark.border');
@@ -12,20 +13,20 @@ const Sidebar = ({ sections, activeSection, mainContentRef, headerHeight }) => {
   const textColor = useColorModeValue('githubLight.text', 'githubDark.text');
 
   const sidebarWidth = "296px";
-  // Adjust the scroll offset - smaller value scrolls target closer to header
-  const scrollOffset = 15; // Pixels below header to stop scrolling
+  // Adjust scroll offset (pixels below header) as needed for visual preference
+  const scrollOffset = 15;
 
   return (
     <Box
       as="nav"
-      position="sticky" // Sticky relative to parent Flex
-      top="0" // Aligns to top of parent Flex (which has padding for header)
-      height="100%" // Fills height of parent Flex
+      position="sticky"
+      top="0" // Sticky relative to parent Flex container
+      height="100%" // Fill parent Flex height
       width={sidebarWidth}
       borderRightWidth="1px"
       borderColor={borderColor}
       bg={bgColor}
-      overflowY="auto" // Scroll sidebar only if its content overflows
+      overflowY="auto"
       display={{ base: 'none', md: 'block' }}
       px={4}
       py={6}
@@ -63,6 +64,7 @@ const Sidebar = ({ sections, activeSection, mainContentRef, headerHeight }) => {
                            behavior: "smooth"
                       });
                   }
+                 // Update URL hash
                  if (history.pushState) { history.pushState(null, null, `#${section.id}`); }
                  else { window.location.hash = `#${section.id}`; }
               }}
