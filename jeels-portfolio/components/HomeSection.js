@@ -1,53 +1,90 @@
 // components/HomeSection.js
 import { Box, Heading, Text, VStack, useColorModeValue, Button, Link as ChakraLink, Icon } from '@chakra-ui/react';
 import NextLink from 'next/link';
-import { FaArrowRight } from 'react-icons/fa'; // Or another suitable icon
+import { FaArrowRight } from 'react-icons/fa';
 
-const HomeSection = () => {
+// Accept props: mainContentRef and headerHeight
+const HomeSection = ({ mainContentRef, headerHeight }) => {
   const headingColor = useColorModeValue('githubLight.link', 'githubDark.link');
   const primaryTextColor = useColorModeValue('githubLight.text', 'githubDark.text');
   const secondaryTextColor = useColorModeValue('githubLight.textSecondary', 'githubDark.textSecondary');
 
+  // Define the click handler function
+  const handleScrollToContact = (e) => {
+    e.preventDefault();
+    const targetElement = document.getElementById('contact'); // Target ID
+    const scrollContainer = mainContentRef?.current; // Use the ref passed via props
+
+    if (targetElement && scrollContainer && headerHeight > 0) {
+        // Calculate positions relative to viewport
+        const elementRect = targetElement.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+
+        // Calculate element's top position relative to the container's scrolled content
+        const elementTopRelativeToContainer = elementRect.top - containerRect.top + scrollContainer.scrollTop;
+
+        // Define buffer (space below header) - ADJUST AS NEEDED
+        const buffer = 20;
+        const scrollTarget = elementTopRelativeToContainer - (headerHeight + buffer);
+
+        // Scroll the container
+        scrollContainer.scrollTo({
+            top: scrollTarget > 0 ? scrollTarget : 0, // Ensure not negative
+            behavior: "smooth"
+        });
+    } else {
+        // Fallback or error handling if elements/refs aren't ready
+        console.warn("Scroll target or container not found, or header height not measured.");
+        // Simple fallback: jump link (less ideal)
+        // window.location.hash = '#contact';
+    }
+
+     // Update URL hash history
+     if (history.pushState) {
+         history.pushState(null, null, '#contact');
+     } else {
+         // Fallback for older browsers
+         window.location.hash = '#contact';
+     }
+  };
+
+
   return (
-    // Use minHeight to ensure it takes significant space, align content center vertically
-    <Box display="flex" alignItems="center" justifyContent="center" minHeight="calc(80vh - 60px)" textAlign={{ base: 'center', md: 'left' }}>
-        <VStack
-            spacing={6}
-            align={{ base: 'center', md: 'flex-start' }}
-            maxWidth="container.lg" // Consistent width
-            mx="auto"
-        >
-            <Heading as="h1" size="2xl" color={headingColor}>
-             Jeel Tandel
-            </Heading>
-            <Heading as="h2" size="lg" fontWeight="medium" color={primaryTextColor}>
-              Computer Programming Student | Full-Stack Developer Focus
-            </Heading>
-            <Text fontSize="md" color={secondaryTextColor} maxW="xl">
-                Detail-oriented Computer Programming Student (GPA: 3.0) with hands-on experience in full-stack development (Java, Python, JavaScript),
-                database management (SQL, Oracle, NoSQL), and data analytics. Seeking to leverage technical
-                expertise in a dynamic role, contributing to innovative solutions and expanding knowledge in emerging technologies.
-            </Text>
-             {/* Optional: Call to Action */}
-             <NextLink href="#contact" passHref legacyBehavior>
-                <Button
-                    as="a" // Render as an anchor tag
-                    colorScheme={useColorModeValue('blue', 'green')} // Match theme button primary color logic
-                    size="lg"
-                    rightIcon={<FaArrowRight />}
-                    variant="solid" // Use solid variant styled in theme
-                    onClick={(e) => { // Smooth scroll for anchor link
-                        e.preventDefault();
-                        document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start'});
-                        if (history.pushState) { history.pushState(null, null, '#contact'); }
-                        else { window.location.hash = '#contact'; }
-                    }}
-                >
-                    Get In Touch
-                </Button>
-             </NextLink>
-        </VStack>
-    </Box>
+    <VStack
+        spacing={6}
+        align={{ base: 'center', md: 'flex-start' }}
+        textAlign={{ base: 'center', md: 'left' }}
+        maxWidth="container.lg"
+        mx="auto"
+        w="full"
+        py={{ base: 10, md: 0 }}
+    >
+        <Heading as="h1" size="2xl" color={headingColor}>
+            Jeel Tandel
+        </Heading>
+        <Heading as="h2" size="lg" fontWeight="medium" color={primaryTextColor}>
+            Computer Programming Student | Full-Stack Developer Focus
+        </Heading>
+        <Text fontSize="md" color={secondaryTextColor} maxW="xl">
+            {/* ... your summary text ... */}
+            Detail-oriented Computer Programming Student (GPA: 3.0) with hands-on experience in full-stack development (Java, Python, JavaScript),
+            database management (SQL, Oracle, NoSQL), and data analytics. Seeking to leverage technical
+            expertise in a dynamic role, contributing to innovative solutions and expanding knowledge in emerging technologies.
+        </Text>
+         {/* No NextLink needed if we handle scroll manually */}
+         <Button
+            // as="a" // Not needed if onClick handles everything
+            colorScheme={useColorModeValue('blue', 'green')}
+            size="lg"
+            rightIcon={<FaArrowRight />}
+            variant="solid"
+            // --- Use the defined handler ---
+            onClick={handleScrollToContact}
+            // -----------------------------
+         >
+            Get In Touch
+         </Button>
+    </VStack>
   );
 };
 
