@@ -1,22 +1,21 @@
 // pages/index.js
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Flex, useColorModeValue, VStack } from '@chakra-ui/react';
+// Import Divider from Chakra
+import { Box, Flex, useColorModeValue, Divider } from '@chakra-ui/react';
 import Head from 'next/head';
 
-// Import Section Components
+// --- VERIFY IMPORTS ---
 import HomeSection from '../components/HomeSection';
 import AboutSection from '../components/AboutSection';
 import ProjectsSection from '../components/ProjectsSection';
 import SkillsSection from '../components/SkillsSection';
 import ExperienceSection from '../components/ExperienceSection';
 import ContactSection from '../components/ContactSection';
-
-// Import Layout Components
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+// ----------------------
 
 
-// Define sections data
 const sections = [
   { id: 'home', name: 'Home', component: HomeSection },
   { id: 'about', name: 'About', component: AboutSection },
@@ -27,150 +26,169 @@ const sections = [
 ];
 
 export default function Home() {
-  const [activeSection, setActiveSection] = useState(sections[0].id); // Default to first section id
-  const sectionRefs = useRef({});
+  const [activeSection, setActiveSection] = useState(sections[0].id);
+  const sectionRefs = useRef(
+    sections.reduce((acc, section) => {
+      acc[section.id] = React.createRef();
+      return acc;
+    }, {})
+  );
   const mainContentRef = useRef(null);
-  const headerRef = useRef(null); // Ref for Header component
-  const [headerHeight, setHeaderHeight] = useState(60); // Default/initial height
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(60); // Default height
 
-  // Populate refs
-  sections.forEach((section) => {
-    sectionRefs.current[section.id] = React.createRef();
-  });
-
-  // Effect to get actual header height after mount
+  // Effect to get header height
   useEffect(() => {
     const timer = setTimeout(() => {
       if (headerRef.current) {
         setHeaderHeight(headerRef.current.offsetHeight);
       }
-    }, 150); // Small delay to allow render
+    }, 150);
     return () => clearTimeout(timer);
   }, []);
 
 
-  // Intersection Observer Callback
+  // Intersection Observer Callback - Focus on entry closest to the ideal position
   const handleIntersection = useCallback((entries) => {
-    let bestCandidate = { id: activeSection, ratio: 0, isIntersecting: false, top: Infinity };
+      let bestCandidateId = null;
+      // Define the ideal target position (e.g., 10px below the header)
+      // We calculate based on rootBounds later if needed, but aiming for near top.
+      const targetOffset = 10; // Pixels below the top edge of the scroll container
+      let smallestDistance = Infinity;
 
-    entries.forEach((entry) => {
-      const { target, isIntersecting, intersectionRatio, boundingClientRect } = entry;
-      const rootBounds = entry.rootBounds; // Bounds of the scroll container
+      entries.forEach(entry => {
+          const { target, isIntersecting, boundingClientRect, rootBounds } = entry;
 
-      if (rootBounds && isIntersecting) {
-        // Calculate position relative to the scroll container's top edge
-        const topRelativeToRoot = boundingClientRect.top - rootBounds.top;
+          if (isIntersecting && rootBounds) {
+              // Position of the element's top relative to the scroll container's top
+              const topRelativeToRoot = boundingClientRect.top - rootBounds.top;
+              // Calculate distance from the ideal target position
+              const distanceFromTarget = Math.abs(topRelativeToRoot - targetOffset);
 
-        // Prioritize sections that are fully visible or closest to the top
-        // A simple heuristic: highest intersectionRatio, breaking ties by closeness to top
-        if (intersectionRatio > bestCandidate.ratio ||
-           (intersectionRatio === bestCandidate.ratio && topRelativeToRoot < bestCandidate.top)) {
-          bestCandidate = { id: target.id, ratio: intersectionRatio, isIntersecting, top: topRelativeToRoot };
-        }
+              // If this entry is closer to the target than the current best, update
+              if (distanceFromTarget < smallestDistance) {
+                  smallestDistance = distanceFromTarget;
+                  bestCandidateId = target.id;
+              }
+          }
+      });
+
+      // Explicitly handle scrolling to the absolute top
+      if (mainContentRef.current && mainContentRef.current.scrollTop < 50) {
+           if (activeSection !== 'home') setActiveSection('home');
       }
-    });
-
-     // Update only if a viable intersecting candidate was found
-    if (bestCandidate.isIntersecting) {
-        setActiveSection(bestCandidate.id);
-    } else {
-        // If nothing is intersecting (e.g., scrolled past end), keep last active?
-        // Or find the element closest to the top edge (even if not intersecting fully)
-        let closestTopId = activeSection;
-        let minDistance = Infinity;
-        sections.forEach(section => {
-            const elem = sectionRefs.current[section.id]?.current;
-            if (elem && mainContentRef.current) {
-                const dist = Math.abs(elem.getBoundingClientRect().top - mainContentRef.current.getBoundingClientRect().top);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    closestTopId = section.id;
-                }
-            }
-        });
-         setActiveSection(closestTopId);
-    }
-
-  }, [activeSection]); // Dependency on activeSection prevents unnecessary updates if ID hasn't changed
+      // Update if a best candidate was found and it's different
+      else if (bestCandidateId && bestCandidateId !== activeSection) {
+          setActiveSection(bestCandidateId);
+      }
+  }, [activeSection]);
 
 
   // Setup Intersection Observer
   useEffect(() => {
     const scrollContainer = mainContentRef.current;
-    if (!scrollContainer) return;
+    if (!scrollContainer || headerHeight <= 0) return;
 
-    // Margin: trigger slightly below header (top: 0), and consider bottom part of viewport
-    // Example: Trigger if element is between 0px and 70% from bottom
+    // rootMargin: Define the observation area more precisely.
+    // top: -10px (start observing slightly above the container top)
+    // bottom: - (container height - TargetAreaHeight) px. E.g., watch top 100px.
+    // Use percentage for flexibility, e.g., watch top 20% -> bottom: -80%
     const observerOptions = {
         root: scrollContainer,
-        rootMargin: `0px 0px -30% 0px`, // Adjust bottom margin as needed
-        threshold: 0.1, // Need at least 10% visible within margins
+        // Observe a zone starting slightly above the top edge to catch fast scrolls,
+        // and extending down (e.g., -70% means top 30% is the active zone).
+        rootMargin: `-10px 0px -70% 0px`,
+        threshold: 0, // Trigger immediately
     }
 
     const observer = new IntersectionObserver(handleIntersection, observerOptions);
 
     sections.forEach((section) => {
-      const ref = sectionRefs.current[section.id]?.current;
-      if (ref) observer.observe(ref);
+      const sectionElement = sectionRefs.current[section.id]?.current;
+      if (sectionElement) {
+           observer.observe(sectionElement);
+      }
     });
 
     return () => {
       sections.forEach((section) => {
-        const ref = sectionRefs.current[section.id]?.current;
-        if (ref) observer.unobserve(ref);
+        const sectionElement = sectionRefs.current[section.id]?.current;
+        if (sectionElement && observer) {
+             try { observer.unobserve(sectionElement); } catch (e) {}
+        }
       });
+      observer.disconnect();
     };
-  }, [handleIntersection, headerHeight]); // Re-run observer setup if header height changes
+  }, [handleIntersection, headerHeight]);
 
 
   const mainBgColor = useColorModeValue('githubLight.bg', 'githubDark.bg');
+  const borderColor = useColorModeValue('githubLight.border', 'githubDark.border');
 
   return (
     <>
       <Head>
-        <title>Your Name - Portfolio</title> {/* <<< REPLACE */}
-        <meta name="description" content="Your professional portfolio description." /> {/* <<< REPLACE */}
+        <title>Jeel Tandel - Portfolio</title>
+        <meta name="description" content="Portfolio of Jeel Tandel, Computer Programming Student focused on Full-Stack Development." />
       </Head>
 
-      {/* Pass ref to Header for height measurement */}
       <Header ref={headerRef} />
 
-      {/* Main layout using Flex */}
       <Flex
           w="full"
-          pt={`${headerHeight}px`} // Push content below fixed header
+          pt={`${headerHeight}px`}
           height="100vh"
-          overflow="hidden" // Prevent body scroll
+          overflow="hidden"
       >
-        {/* Sidebar */}
         <Sidebar
             sections={sections}
             activeSection={activeSection}
-            mainContentRef={mainContentRef} // Pass ref for scrolling
-            headerHeight={headerHeight} // Pass height for offset calc
+            mainContentRef={mainContentRef}
+            headerHeight={headerHeight}
         />
-
-        {/* Main Content Scrolling Area */}
         <Box
-          ref={mainContentRef} // Ref for scroll events and IO root
+          ref={mainContentRef}
           flex="1"
           bg={mainBgColor}
           overflowY="auto"
-          height="100%" // Fill parent Flex height
+          height="100%"
           sx={{ scrollBehavior: 'smooth' }}
-          // Add padding INSIDE the scrollable area
-          px={{ base: 4, md: 6, lg: 8 }} // Adjust padding
-          py={8}
+          // Consistent horizontal padding
+          px={{ base: 5, md: 8, lg: 10 }}
+          // Remove py here, handle spacing with section padding/margins
         >
-          {sections.map(({ id, component: Component }) => (
-            // Add section wrapper with ref and id for IO and scrolling
-            <Box key={id} id={id} ref={sectionRefs.current[id]}
-                 // Add padding/margin *below* each section for spacing
-                 pb={{ base: 10, md: 16 }}
-            >
-              <Component />
-            </Box>
-          ))}
+          {sections.map(({ id, component: Component }, index) => {
+            if (!Component) {
+                console.error(`Error: Component for section '${id}' is undefined!`);
+                return <Box key={id} color="red.500" p={5}>Error loading section: '{id}'.</Box>;
+            }
+            return (
+              // Use Fragment to avoid unnecessary outer Box for each section itself
+              <React.Fragment key={id}>
+                 {/* Add Divider BEFORE sections (except the first one) */}
+                 {index > 0 && (
+                    <Divider
+                        my={{ base: 12, md: 16 }} // Vertical margin for spacing
+                        borderColor={borderColor}
+                        // Constrain divider width to match content
+                        maxWidth="container.lg" // Match section content width
+                        mx="auto" // Center the divider
+                    />
+                 )}
+                 {/* Section Content Box */}
+                 <Box
+                     id={id} // ID for anchor linking
+                     ref={sectionRefs.current[id]} // Ref for IntersectionObserver target
+                     // Add padding TOP and BOTTOM for spacing around content
+                     pt={{ base: 8, md: 12 }} // Padding top for space after divider/previous section
+                     pb={{ base: 8, md: 12 }} // Padding bottom for space before next divider
+                 >
+                    {/* Render the actual section component */}
+                    <Component />
+                 </Box>
+              </React.Fragment>
+            );
+           })}
         </Box>
       </Flex>
     </>

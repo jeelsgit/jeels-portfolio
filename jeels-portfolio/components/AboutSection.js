@@ -1,23 +1,33 @@
 // components/AboutSection.js
-import { Box, Heading, Text, VStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, useColorModeValue, Link as ChakraLink } from '@chakra-ui/react';
 
-const AboutSection = ({ id, sectionRef }) => {
+const AboutSection = () => {
+  const primaryTextColor = useColorModeValue('githubLight.text', 'githubDark.text');
+  const secondaryTextColor = useColorModeValue('githubLight.textSecondary', 'githubDark.textSecondary');
+  const linkColor = useColorModeValue('githubLight.link', 'githubDark.link');
+
   return (
-    <Box id={id} ref={sectionRef} py={20} >
-       <VStack spacing={6} align="flex-start" maxWidth="container.md" mx="auto">
-          <Heading as="h2" size="xl">About Me</Heading>
-          <Text fontSize="md" color={useColorModeValue('gray.700', 'gray.300')}>
-            Provide a more detailed background here. Talk about your journey into your field,
-            your passion for technology/design/etc., and key experiences that shaped your career.
-            Mention specific areas of interest within your profession. {/* <<< REPLACE */}
-          </Text>
-          <Text fontSize="md" color={useColorModeValue('gray.700', 'gray.300')}>
-            You can add another paragraph discussing your work philosophy, collaboration style,
-            or what kind of roles and challenges you are currently seeking.
-            Remember the target audience (HR Managers). {/* <<< REPLACE */}
-          </Text>
-       </VStack>
-    </Box>
+    <VStack
+        spacing={6}
+        align="flex-start"
+        maxWidth="container.lg" // Consistent width
+        mx="auto"
+    >
+        <Heading as="h2" size="xl">About Me</Heading>
+        <Text color={primaryTextColor} fontSize="md">
+            I'm currently pursuing an Associate degree in Computer Programming & Analysis at{' '}
+            <ChakraLink href="https://www.algonquincollege.com/" isExternal color={linkColor} fontWeight="500">
+                Algonquin College
+            </ChakraLink>
+            {' '}in Ottawa, maintaining a GPA of 3.0 and consistently achieving Dean's Honors List recognition. My coursework has provided a strong foundation in advanced object-oriented programming with Java, cloud database management, web frameworks, network security, and mobile development using Android Studio.
+        </Text>
+        <Text color={primaryTextColor} fontSize="md">
+            Beyond academics, I have practical experience as a Full-Stack Developer, building platforms using Java, Python, and PostgreSQL, optimizing databases, and implementing secure authentication. I thrive in Agile environments, enjoy collaborating with teams to solve complex problems, and am passionate about clean code architecture and system design.
+        </Text>
+        <Text color={primaryTextColor} fontSize="md">
+            My goal is to find a dynamic role where I can apply my skills in full-stack development, data management, and cloud technologies to contribute to innovative projects, while continuously learning and growing, particularly in emerging tech fields.
+        </Text>
+    </VStack>
   );
 };
 

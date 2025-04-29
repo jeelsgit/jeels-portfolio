@@ -1,78 +1,62 @@
 // components/SkillsSection.js
-import { Box, Heading, SimpleGrid, VStack, Text, Tag, useColorModeValue, Progress } from '@chakra-ui/react';
+import { Box, Heading, VStack, Text, Wrap, WrapItem, Tag, useColorModeValue, List, ListItem, ListIcon } from '@chakra-ui/react';
+import { CheckCircleIcon } from '@chakra-ui/icons'; // Or use react-icons
 
-// --- REPLACE WITH YOUR SKILLS ---
-const technicalSkills = [
-  { name: 'JavaScript (ES6+)', level: 90 }, // Level (0-100) is optional, for progress bars
-  { name: 'React & Next.js', level: 85 },
-  { name: 'Node.js & Express', level: 75 },
-  { name: 'HTML5 & CSS3', level: 95 },
-  { name: 'Chakra UI / Tailwind', level: 80 },
-  { name: 'Python', level: 70 },
-  { name: 'SQL & NoSQL (MongoDB)', level: 65 },
-  { name: 'Git & GitHub', level: 85 },
-  { name: 'Docker', level: 60 },
-  // Add more technical skills
-];
+// --- Skills from Resume ---
+const programmingSkills = ['Java', 'Python', 'JavaScript', 'HTML5', 'CSS3', 'PHP', 'SQL', 'Bash', 'PowerShell', 'C#'];
+const databaseSkills = ['Oracle 19c', 'MySQL', 'PostgreSQL', 'MongoDB', 'MS Access', 'SQL Server', 'Firebase'];
+const toolsSkills = ['Power BI', 'RapidMiner', 'Wireshark', 'Git/GitHub', 'VS Code', 'Eclipse', 'IntelliJ', 'VMware', 'Docker'];
+const cloudOsSkills = ['Linux', 'Windows', 'macOS', 'Unix', 'ArcGIS', 'Android Studio', 'Azure Fundamentals'];
+const methodologiesSkills = ['Agile/Scrum', 'CI/CD', 'Debugging', 'System Design', 'Data Analytics', 'REST APIs', 'Secure Development'];
+const softSkills = ['Leadership', 'Communication', 'Problem-Solving', 'Team Collaboration', 'Time Management', 'Detail-Oriented'];
+// --- End of Skills Data ---
 
-const softSkills = [
-  'Problem Solving',
-  'Team Collaboration',
-  'Communication',
-  'Agile Methodologies',
-  'Project Management (Basic)',
-  'Adaptability',
-  // Add more soft skills
-];
-// --- END OF SKILLS DATA ---
+const SkillsSection = () => {
+  const secondaryTextColor = useColorModeValue('githubLight.textSecondary', 'githubDark.textSecondary');
+  const tagColorScheme = useColorModeValue('blue', 'cyan'); // Match theme Tag variant if needed
 
-const SkillsSection = ({ id, sectionRef }) => {
-  const tagColorScheme = useColorModeValue('teal', 'cyan');
-  const progressColorScheme = useColorModeValue('teal', 'cyan');
+  const SkillCategory = ({ title, skills }) => (
+    <VStack align="stretch" spacing={3} width="full">
+      <Heading size="md" fontWeight="600">{title}</Heading>
+      <Wrap spacing={2}>
+        {skills.map((skill) => (
+          <WrapItem key={skill}>
+             {/* Use default subtle Tag style from theme */}
+            <Tag size="md">{skill}</Tag>
+          </WrapItem>
+        ))}
+      </Wrap>
+    </VStack>
+  );
 
   return (
-    <Box id={id} ref={sectionRef} py={20}>
-      <VStack spacing={10} align="flex-start" maxWidth="container.md" mx="auto">
+    <VStack
+        spacing={10}
+        align="flex-start"
+        maxWidth="container.lg" // Consistent width
+        mx="auto"
+    >
         <Heading as="h2" size="xl">Skills</Heading>
 
-        {/* Technical Skills */}
-        <VStack align="stretch" spacing={4} width="full">
-          <Heading size="lg" fontWeight="medium">Technical Skills</Heading>
-          {/* Option 1: Badges/Tags */}
-          {/* <Wrap spacing={3}>
-             {technicalSkills.map((skill) => (
-               <WrapItem key={skill.name}>
-                  <Tag size="lg" variant="solid" colorScheme={tagColorScheme}>
-                    {skill.name}
-                  </Tag>
-               </WrapItem>
-             ))}
-           </Wrap> */}
+        <SkillCategory title="Programming Languages" skills={programmingSkills} />
+        <SkillCategory title="Databases" skills={databaseSkills} />
+        <SkillCategory title="Tools & Technologies" skills={toolsSkills} />
+        <SkillCategory title="Cloud, OS & Platforms" skills={cloudOsSkills} />
+        <SkillCategory title="Methodologies & Concepts" skills={methodologiesSkills} />
 
-          {/* Option 2: List with Progress Bars (if using levels) */}
-          <SimpleGrid columns={{ base: 1, md: 2 }} spacingX={10} spacingY={4}>
-             {technicalSkills.map((skill) => (
-               <Box key={skill.name}>
-                 <Text mb={1} fontWeight="medium">{skill.name}</Text>
-                 <Progress value={skill.level} size="sm" colorScheme={progressColorScheme} borderRadius="md" />
-               </Box>
-             ))}
-          </SimpleGrid>
+        {/* Soft Skills - Different presentation maybe? */}
+        <VStack align="stretch" spacing={3} width="full">
+            <Heading size="md" fontWeight="600">Soft Skills</Heading>
+            <List spacing={2}>
+                {softSkills.map((skill) => (
+                <ListItem key={skill} fontSize="sm" display="flex" alignItems="center">
+                    <ListIcon as={CheckCircleIcon} color={useColorModeValue('githubLight.success', 'githubDark.success')} />
+                    {skill}
+                </ListItem>
+                ))}
+            </List>
         </VStack>
-
-        {/* Soft Skills */}
-        <VStack align="stretch" spacing={4} width="full">
-           <Heading size="lg" fontWeight="medium">Soft Skills</Heading>
-           <SimpleGrid columns={{ base: 2, md: 3 }} spacing={3}>
-             {softSkills.map((skill) => (
-               <Tag size="md" key={skill} variant="outline" colorScheme={tagColorScheme}>
-                 {skill}
-               </Tag>
-             ))}
-           </SimpleGrid>
-        </VStack>
-      </VStack>
-    </Box>
+    </VStack>
   );
 };
 

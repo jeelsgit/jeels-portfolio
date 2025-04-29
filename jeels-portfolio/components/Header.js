@@ -1,61 +1,70 @@
 // components/Header.js
-import React, { useState, useEffect, useRef, forwardRef } from 'react'; // Import forwardRef
+import React, { useState, useEffect, useRef, forwardRef } from 'react';
 import { Box, Flex, Heading, Spacer, useColorModeValue, Icon } from '@chakra-ui/react';
 import { MarkGithubIcon } from '@primer/octicons-react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 
-// Wrap component with forwardRef to receive ref from index.js
 const Header = forwardRef((props, ref) => {
-  const bgColor = useColorModeValue('githubLight.bg', 'githubDark.bg'); // Use main bg
+  const bgColor = useColorModeValue('githubLight.bg', 'githubDark.bg');
   const borderColor = useColorModeValue('githubLight.border', 'githubDark.border');
   const textColor = useColorModeValue('githubLight.text', 'githubDark.text');
+  const shadow = useColorModeValue('sm', 'none');
 
-  const [showNav, setShowNav] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [headerHeight, setHeaderHeight] = useState(60); // Initial estimate
+  const [isVisible, setIsVisible] = useState(true);
+  const [height, setHeight] = useState(60); // Initial estimate
+  const lastScrollY = useRef(0); // Store last scroll position
 
-  // Internal ref for height calculation if needed, or use passed ref
-  const internalHeaderRef = useRef(null);
-
-  // Use the forwarded ref primarily, fallback to internal if needed
-  const headerElementRef = ref || internalHeaderRef;
-
-  // Effect to measure height using the appropriate ref
+  // Effect to measure height using the forwarded ref
   useEffect(() => {
-      if (headerElementRef.current) {
-          setHeaderHeight(headerElementRef.current.offsetHeight);
-      }
-      // Add resize listener if you want it to be perfectly dynamic on resize
-      // const handleResize = () => { ... setHeaderHeight ... };
-      // window.addEventListener('resize', handleResize);
-      // return () => window.removeEventListener('resize', handleResize);
-  }, [headerElementRef]); // Re-run if the ref changes
+    if (ref?.current) {
+      const measureHeight = () => {
+        setHeight(ref.current.offsetHeight);
+      };
+      // Measure initially
+      measureHeight();
+      // Optional: Re-measure on resize
+      window.addEventListener('resize', measureHeight);
+      return () => window.removeEventListener('resize', measureHeight);
+    }
+  }, [ref]);
 
-  // Effect to control visibility
+  // Effect for scroll listener
   useEffect(() => {
-    const controlNavbar = () => {
-      if (typeof window !== 'undefined') {
-        if (window.scrollY < lastScrollY || window.scrollY <= 50) {
-          setShowNav(true);
-        } else if (window.scrollY > headerHeight) { // Only hide if scrolled past header
-          setShowNav(false);
+    // Only run if window is defined (prevents server-side errors)
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+        const previousScrollY = lastScrollY.current;
+        const delta = 10; // Minimum scroll change to trigger hide/show
+        const effectiveHeight = height || 60; // Use state height or fallback
+
+        // Scrolling down, past the header height significantly
+        if (currentScrollY > previousScrollY + delta && currentScrollY > effectiveHeight + 50) {
+            setIsVisible(false);
         }
-        setLastScrollY(window.scrollY);
-      }
+        // Scrolling up or very near the top
+        else if (currentScrollY < previousScrollY - delta || currentScrollY < 10) {
+            setIsVisible(true);
+        }
+
+        // Update last scroll position (must be done AFTER comparison)
+        lastScrollY.current = Math.max(0, currentScrollY); // Ensure it's not negative
     };
 
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', controlNavbar, { passive: true }); // Use passive listener
-      return () => {
-        window.removeEventListener('scroll', controlNavbar);
-      };
-    }
-  }, [lastScrollY, headerHeight]); // Depend on headerHeight too
+    // Add listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
+    // Cleanup listener on unmount
+    return () => window.removeEventListener('scroll', handleScroll);
+
+  }, [height]); // Dependency on height ensures correct threshold
 
   return (
     <Box
-      ref={headerElementRef} // Attach the ref here
+      ref={ref} // Attach forwarded ref
       as="header"
       position="fixed"
       top="0"
@@ -63,19 +72,19 @@ const Header = forwardRef((props, ref) => {
       bg={bgColor}
       borderBottomWidth="1px"
       borderColor={borderColor}
-      zIndex="sticky"
+      zIndex="sticky" // High z-index
       px={{ base: 4, md: 6 }}
       py={3}
-      transition="transform 0.3s ease-in-out"
-      // Use measured headerHeight for transform
-      transform={showNav ? 'translateY(0)' : `translateY(-${headerHeight}px)`}
-      boxShadow={mode('sm', 'none')} // Add subtle shadow in light mode
+      transition="transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out"
+      // Use visibility state and measured height for transform
+      transform={isVisible ? 'translateY(0)' : `translateY(-${height}px)`}
+      boxShadow={shadow}
     >
       <Flex align="center" maxW="full" mx="auto">
         <Flex align="center">
            <Icon as={MarkGithubIcon} boxSize={8} color={textColor} mr={2} />
            <Heading size="md" fontWeight="600" color={textColor}>
-              Your Name {/* <<< REPLACE */}
+              Jeel Tandel
            </Heading>
         </Flex>
         <Spacer />
@@ -87,7 +96,5 @@ const Header = forwardRef((props, ref) => {
   );
 });
 
-// Add display name for DevTools
 Header.displayName = "Header";
-
 export default Header;

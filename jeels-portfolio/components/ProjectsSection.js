@@ -1,9 +1,28 @@
 // components/ProjectsSection.js
-import { Box, Heading, SimpleGrid, VStack, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Heading, SimpleGrid, VStack } from '@chakra-ui/react';
 import ProjectCard from './ProjectCard';
 
-// --- REPLACE WITH YOUR ACTUAL PROJECT DATA ---
+// --- UPDATED WITH RESUME PROJECTS ---
 const projectsData = [
+    {
+        title: 'Spotify Database Architect',
+        description: 'Led a 3-member team to design a scalable Oracle database, optimizing queries and triggers. Reduced runtime by 15% via indexing and ACID compliance. Automated reporting with stored procedures.',
+        techStack: ['PL/SQL', 'Oracle 19c', 'MS Access', 'Database Design', 'Optimization'],
+        // repoUrl: 'Link to repo if public', // Add if applicable
+    },
+    {
+        title: 'Personal Portfolio Website',
+        description: 'Developed this responsive portfolio website using Next.js, Chakra UI, and Git. Integrated Google Analytics and aimed for high Lighthouse scores for performance and accessibility.',
+        techStack: ['Next.js', 'React', 'Chakra UI', 'HTML5', 'CSS3', 'JavaScript', 'Git'],
+        repoUrl: 'https://github.com/jeelsgit/jeels-portfolio', // Link to THIS repo
+        liveUrl: '#', // Link to the deployed site later
+    },
+     {
+        title: 'Flood Mapping Tool (NASA Space Apps)',
+        description: 'Developed during the NASA Space Apps Challenge 2024. Used ArcGIS and historical climate data to analyze and predict high-risk flood zones.',
+        techStack: ['ArcGIS', 'Python', 'Data Analysis', 'Geo-Mapping'],
+        // repoUrl: 'Link to repo if public', // Add if applicable
+    },
     {
       title: 'Project Alpha',
       description: 'A brief description of Project Alpha, highlighting its purpose and key features.',
@@ -30,19 +49,18 @@ const projectsData = [
       techStack: ['Vue', 'Firebase'],
       repoUrl: 'https://github.com/yourusername/project-delta',
     },
-    // Add more projects here...
+    // Add other projects if you have them
 ];
 // --- END OF PROJECT DATA ---
 
 const ProjectsSection = () => {
-    const containerMaxWidth = "container.lg"; // Use large container width for content
+    const containerMaxWidth = "container.lg"; // Consistent width
 
     return (
-    <Box py={{base: 10, md: 16}}>
         <VStack spacing={8} align="flex-start" maxWidth={containerMaxWidth} mx="auto">
-            <Heading as="h2" size="xl" id="projects-heading">Projects</Heading> {/* Add id if needed for direct linking */}
+            <Heading as="h2" size="xl">Projects</Heading>
             <SimpleGrid
-                columns={{ base: 1, md: 2 }} // Max 2 columns from md up
+                columns={{ base: 1, md: 2 }}
                 spacing={6}
                 width="full"
             >
@@ -51,7 +69,6 @@ const ProjectsSection = () => {
                 ))}
             </SimpleGrid>
         </VStack>
-    </Box>
     );
 };
 
