@@ -176,7 +176,7 @@ export default function Home() {
                          id={id}
                          ref={sectionRefs.current[id]}
                          // Add padding top to create space, especially for the first section
-                         pt={index === 0 ? { base: 12, md: 16 } : 0}
+                         py={{ base: 16, md: 20 }}
                          pb={{ base: 8, md: 12 }} // Consistent padding bottom
                      >
                         <Component

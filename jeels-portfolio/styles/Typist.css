@@ -1,0 +1,20 @@
+/* styles/Typist.css */
+
+/* Ensure the cursor class provided by react-typist-legacy is styled */
+.Cursor {
+    display: inline-block;
+    margin-left: 2px; /* Adjust spacing */
+    opacity: 1;
+    animation: blink 1s infinite; /* Blinking animation */
+  }
+  
+  .Cursor--blinking {
+    opacity: 1;
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }

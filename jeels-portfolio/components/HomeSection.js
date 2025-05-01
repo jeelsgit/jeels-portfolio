@@ -1,86 +1,125 @@
 // components/HomeSection.js
-import { Box, Heading, Text, VStack, useColorModeValue, Button, Link as ChakraLink, Icon } from '@chakra-ui/react';
-import NextLink from 'next/link';
+import React, { useState, useEffect } from 'react';
+import { Box, Heading, Text, VStack, useColorModeValue, Button, Icon } from '@chakra-ui/react';
+import Typist from 'react-typist-component'; // Use correct library import
 import { FaArrowRight } from 'react-icons/fa';
 
-// Accept props: mainContentRef and headerHeight
-const HomeSection = ({ mainContentRef, headerHeight }) => {
-  const headingColor = useColorModeValue('githubLight.link', 'githubDark.link');
-  const primaryTextColor = useColorModeValue('githubLight.text', 'githubDark.text');
-  const secondaryTextColor = useColorModeValue('githubLight.textSecondary', 'githubDark.textSecondary');
+const HomeSection = ({ mainContentRef, headerHeight }) => { // Accept props again if needed for scrolling
+  // Define colors explicitly for light/dark modes
+  const termBg = useColorModeValue('gray.100', 'gray.900'); // Lighter dark bg for term
+  const termBorder = useColorModeValue('gray.200', 'gray.700');
+  const promptColor = useColorModeValue('green.600', 'green.300'); // Adjusted prompt colors
+  const commandColor = useColorModeValue('gray.800', 'gray.100'); // Color for typed commands
+  const outputColor = useColorModeValue('gray.800', 'gray.100'); // Color for command output
+  const nameColor = useColorModeValue('blue.600', 'blue.300'); // Distinct color for name
+  const headlineColor = useColorModeValue('gray.800', 'gray.100');
+  const summaryColor = useColorModeValue('gray.600', 'gray.400'); // Secondary color for summary
 
-  // Define the click handler function
+  const [typingKey, setTypingKey] = useState(0);
+
   const handleScrollToContact = (e) => {
-    e.preventDefault();
-    const targetElement = document.getElementById('contact'); // Target ID
-    const scrollContainer = mainContentRef?.current; // Use the ref passed via props
+      e.preventDefault();
+      const targetElement = document.getElementById('contact');
+      const scrollContainer = mainContentRef?.current;
 
-    if (targetElement && scrollContainer && headerHeight > 0) {
-        // Calculate positions relative to viewport
-        const elementRect = targetElement.getBoundingClientRect();
-        const containerRect = scrollContainer.getBoundingClientRect();
-
-        // Calculate element's top position relative to the container's scrolled content
-        const elementTopRelativeToContainer = elementRect.top - containerRect.top + scrollContainer.scrollTop;
-
-        // Define buffer (space below header) - ADJUST AS NEEDED
-        const buffer = 20;
-        const scrollTarget = elementTopRelativeToContainer - (headerHeight + buffer);
-
-        // Scroll the container
-        scrollContainer.scrollTo({
-            top: scrollTarget > 0 ? scrollTarget : 0, // Ensure not negative
-            behavior: "smooth"
-        });
-    } else {
-        // Fallback or error handling if elements/refs aren't ready
-        console.warn("Scroll target or container not found, or header height not measured.");
-        // Simple fallback: jump link (less ideal)
-        // window.location.hash = '#contact';
-    }
-
-     // Update URL hash history
-     if (history.pushState) {
-         history.pushState(null, null, '#contact');
-     } else {
-         // Fallback for older browsers
-         window.location.hash = '#contact';
-     }
+      if (targetElement && scrollContainer && headerHeight > 0) {
+          const elementRect = targetElement.getBoundingClientRect();
+          const containerRect = scrollContainer.getBoundingClientRect();
+          const elementTopRelativeToContainer = elementRect.top - containerRect.top + scrollContainer.scrollTop;
+          // --- ADJUST SCROLL OFFSET FOR CONTACT BUTTON ---
+          const buffer = 60; // Larger buffer to center contact more
+          const scrollTarget = elementTopRelativeToContainer - (headerHeight + buffer);
+          // --- END ADJUSTMENT ---
+          scrollContainer.scrollTo({
+              top: scrollTarget > 0 ? scrollTarget : 0,
+              behavior: "smooth"
+          });
+      } else {
+          console.warn("Scroll elements not ready for contact scroll.");
+          // Fallback if refs/height not ready
+          const element = document.getElementById('contact');
+          if(element) element.scrollIntoView({ behavior: 'smooth', block: 'center'}); // Center block fallback
+      }
+      if (history.pushState) { history.pushState(null, null, '#contact'); }
+      else { window.location.hash = '#contact'; }
   };
 
 
   return (
     <VStack
-        spacing={6}
+        spacing={8} // Keep spacing between terminal and button
         align={{ base: 'center', md: 'flex-start' }}
-        textAlign={{ base: 'center', md: 'left' }}
+        textAlign="left" // Always left align terminal content
         maxWidth="container.lg"
         mx="auto"
         w="full"
-        py={{ base: 10, md: 0 }}
+        py={{ base: 10, md: 6 }} // Adjust vertical padding
     >
-        <Heading as="h1" size="2xl" color={headingColor}>
-            Jeel Tandel
-        </Heading>
-        <Heading as="h2" size="lg" fontWeight="medium" color={primaryTextColor}>
-            Computer Programming Student | Full-Stack Developer Focus
-        </Heading>
-        <Text fontSize="md" color={secondaryTextColor} maxW="xl">
-            {/* ... your summary text ... */}
-            Detail-oriented Computer Programming Student (GPA: 3.0) with hands-on experience in full-stack development (Java, Python, JavaScript),
-            database management (SQL, Oracle, NoSQL), and data analytics. Seeking to leverage technical
-            expertise in a dynamic role, contributing to innovative solutions and expanding knowledge in emerging technologies.
-        </Text>
-         {/* No NextLink needed if we handle scroll manually */}
-         <Button
-            // as="a" // Not needed if onClick handles everything
+        {/* Terminal Box - Enhanced Styling */}
+        <Box
+            bg={termBg}
+            color={outputColor} // Default text color inside terminal
+            fontFamily="mono"
+            p={{ base: 4, md: 6}} // Responsive padding
+            borderRadius="lg" // Slightly larger radius
+            border="1px solid"
+            borderColor={termBorder} // Use specific border color
+            width="full"
+            minHeight={{ base: "300px", md: "280px" }} // Adjusted min height
+            boxShadow="md"
+        >
+            <Typist
+                key={typingKey}
+                typingDelay={50}
+                loop={false}
+                 // Default cursor should work fine now, ensure Typist.css is imported in _app.js
+            >
+                {/* Line 1: whoami */}
+                <Text as="span" color={promptColor}>$</Text>
+                <Text as="span" ml={2} color={commandColor}>whoami</Text>
+                <Typist.Delay ms={500} />
+                <br />
+                <Text color={nameColor} fontWeight="bold" fontSize="lg">Jeel Tandel</Text>
+                <Typist.Delay ms={1000} />
+                <br />
+                <br />
+
+                {/* Line 2: cat headline.txt */}
+                <Text as="span" color={promptColor}>$</Text>
+                <Typist.Delay ms={300} />
+                <Text as="span" ml={2} color={commandColor}>cat headline.txt</Text>
+                <Typist.Delay ms={500} />
+                <br />
+                <Text color={headlineColor}>Computer Programming Student | Full-Stack Developer Focus</Text>
+                <Typist.Delay ms={1000} />
+                <br />
+                <br />
+
+                {/* Line 3: echo $SUMMARY */}
+                <Text as="span" color={promptColor}>$</Text>
+                <Typist.Delay ms={300} />
+                 <Text as="span" ml={2} color={commandColor}>echo $SUMMARY</Text>
+                 <Typist.Delay ms={500} />
+                 <br />
+                <Text as="span" color={summaryColor} fontSize="sm" display="block" maxW="xl"> {/* Use block & maxW for wrapping */}
+                    Detail-oriented student (GPA: 3.0) with hands-on experience in full-stack development (Java, Python, JS), DB management (SQL, NoSQL), and data analytics. Seeking to leverage technical expertise in a dynamic role...
+                </Text>
+                 <Typist.Delay ms={1500} />
+                 <br/>
+
+                 {/* Final prompt */}
+                 <Text as="span" color={promptColor}>$ </Text>
+            </Typist>
+        </Box>
+
+        <Button
             colorScheme={useColorModeValue('blue', 'green')}
             size="lg"
             rightIcon={<FaArrowRight />}
             variant="solid"
-            // --- Use the defined handler ---
             onClick={handleScrollToContact}
-            // -----------------------------
+            mt={4}
+            alignSelf={{ base: 'center', md: 'flex-start' }}
          >
             Get In Touch
          </Button>

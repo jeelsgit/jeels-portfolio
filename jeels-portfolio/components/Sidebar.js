@@ -15,7 +15,7 @@ const Sidebar = ({ sections, activeSection, mainContentRef, headerHeight }) => {
   // --- ADJUST SCROLL OFFSET ---
   // Fine-tune this value (pixels) to leave space below the header
   // A value slightly larger than the header height often works.
-  const scrollOffset = headerHeight ? headerHeight + 20 : 80; // Add 20px buffer below header
+  const scrollOffset = headerHeight ? headerHeight + 10 : 80; // Add 20px buffer below header
   // ---------------------------
 
   return (
