@@ -90,7 +90,7 @@ const HomeSection = ({ mainContentRef, headerHeight }) => { // Accept props agai
                 <Text as="span" ml={2} color={commandColor}>cat headline.txt</Text>
                 <Typist.Delay ms={500} />
                 <br />
-                <Text color={headlineColor}>Computer Programming Student | Full-Stack Developer Focus</Text>
+                <Text color={headlineColor}>Geospatial Analysis | ArcGIS | Python | Data Analytics | AI / Machine Learning</Text>
                 <Typist.Delay ms={1000} />
                 <br />
                 <br />
@@ -102,7 +102,7 @@ const HomeSection = ({ mainContentRef, headerHeight }) => { // Accept props agai
                  <Typist.Delay ms={500} />
                  <br />
                 <Text as="span" color={summaryColor} fontSize="sm" display="block" maxW="xl"> {/* Use block & maxW for wrapping */}
-                    Detail-oriented student (GPA: 3.0) with hands-on experience in full-stack development (Java, Python, JS), DB management (SQL, NoSQL), and data analytics. Seeking to leverage technical expertise in a dynamic role...
+                    A detail-oriented AI Engineer at Xenara AI, and a graduate of Algonquin College's Computer Programming & Analysis program. With hands-on experience in full-stack development, database management, and cloud technologies, I'm passionate about building innovative and efficient solutions. I'm eager to leverage my expertise in dynamic and challenging tech environments
                 </Text>
                  <Typist.Delay ms={1500} />
                  <br/>

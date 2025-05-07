@@ -15,17 +15,17 @@ const AboutSection = () => {
     >
         <Heading as="h2" size="xl">About Me</Heading>
         <Text color={primaryTextColor} fontSize="md">
-            I'm currently pursuing an Associate degree in Computer Programming & Analysis at{' '}
+            My journey as an AI Engineer at Xenara AI is rooted in my education from {' '}
             <ChakraLink href="https://www.algonquincollege.com/" isExternal color={linkColor} fontWeight="500">
                 Algonquin College
             </ChakraLink>
-            {' '}in Ottawa, maintaining a GPA of 3.0 and consistently achieving Dean's Honors List recognition. My coursework has provided a strong foundation in advanced object-oriented programming with Java, cloud database management, web frameworks, network security, and mobile development using Android Studio.
+            {' '}'s Computer Programming & Analysis program, where I focused on areas like advanced object-oriented programming (Java), cloud database management, web frameworks, network security, and mobile development using Android Studio. I was fortunate enough to achieve a 3.0 GPA and be recognized on the Dean's Honors List.
         </Text>
         <Text color={primaryTextColor} fontSize="md">
-            Beyond academics, I have practical experience as a Full-Stack Developer, building platforms using Java, Python, and PostgreSQL, optimizing databases, and implementing secure authentication. I thrive in Agile environments, enjoy collaborating with teams to solve complex problems, and am passionate about clean code architecture and system design.
+            Prior to this, my experience as a Full-Stack Developer provided invaluable practical skills. I built robust platforms utilizing Java, Python, and PostgreSQL, and gained significant experience in optimizing database performance and implementing secure authentication systems. I'm drawn to Agile methodologies, prioritize clean code architecture and effective system design, and find great satisfaction in collaborating with teams to solve complex challenges.
         </Text>
         <Text color={primaryTextColor} fontSize="md">
-            My goal is to find a dynamic role where I can apply my skills in full-stack development, data management, and cloud technologies to contribute to innovative projects, while continuously learning and growing, particularly in emerging tech fields.
+            My passion lies in applying my expertise across artificial intelligence, full-stack development, data management, and cloud technologies to create impactful solutions. I'm always eager to embrace new technologies and pursue continuous professional growth.
         </Text>
     </VStack>
   );
